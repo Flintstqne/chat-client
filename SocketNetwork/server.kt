@@ -1,6 +1,7 @@
 import java.net.ServerSocket
 import kotlin.concurrent.thread
 import java.io.*
+import java.net.Socket
 
 
 fun mapToString(map : HashMap<String, Any>) : String {
@@ -11,6 +12,8 @@ fun mapToString(map : HashMap<String, Any>) : String {
 	}	
 	return finishedString
 }
+var clientThreads = HashMap<String, Any>()
+var activeUsers = HashMap<String, Any>()
 
 fun remapString(mapString : String) : HashMap<String, Any>{
 	var hash = HashMap<String, Any>()
@@ -36,32 +39,75 @@ fun main() {
     val server = ServerSocket(8080)
     
     println("Listening on port 8080...")
+    // loop to check for incoming user information
     while (true){
 		val socket = server.accept()
 		val clientInformation = socket.getRemoteSocketAddress().toString()
-		thread { registerUser(server, clientInformation) }
-		print("Client $clientInformation ")
-		val text = BufferedReader(InputStreamReader(socket.getInputStream())).readLine()
-		if (text != "null"){
-			var map = remapString(text)
-			println("Subject:" + map.get("Subject"))
-			println("Content:" + map.get("Message"))
-			println("From:")
-			println(map.get("From"))
+		// if this user isn't already logged, we need to register them with our server (for this connection)
+		if (activeUsers.containsKey(clientInformation) == false){
+			thread { handleUser(clientInformation) }
 		} else {
-			println("Client Disconnected...")
+			clientThreads.put(clientInformation, thread { handleUser(clientInformation) })
 		}
+		
 	}
+}
+
+
+fun ping(userIP : String){
+	println("Pinging $userIP")
 }
 
 // user handling function
 
-fun userFunc(socketInformation : String){
-	 
+fun getUserFromIP(IP:String){
+	
 }
 
 
-fun registerUser(server : ServerSocket, IP : String) : String{
+fun handleUser(socketInformation : String){
+	var clientConnected = true
+	print("Client $socketInformation connected.")
+	val server = ServerSocket(8080)
+	
+	while (clientConnected == true) {
+	
+		
+	
+		val socket = server.accept()
+		val clientInformation = socket.getRemoteSocketAddress().toString()	
+			
+		// get target socket IP
+		
+		
+		
+		val text = BufferedReader(InputStreamReader(socket.getInputStream())).readLine()
+			
+		var map = remapString(text)
+		println("Subject:" + map.get("Subject"))
+		println("Content:" + map.get("Message"))
+		println("From:")
+		println(map.get("From"))
+		println("To:")
+		println(map.get("To"))
+		try{
+			val targetClient = Socket(map.get("To").toString(), 8080)
+			val output = PrintWriter(targetClient.getOutputStream(), true)
+			output.println(text)
+			
+			// now the client needs to handle the recieving end of this (open a serverPort on each client to recieve data)
+			// [NEEDS TESTING]
+			// THIS MAY NOT WORK AT ALL.
+		} catch (e: Exception){
+			println("Probably not a valid IP")
+			println(e)
+		}
+		
+	}
+}
+
+
+fun registerUser(IP : String) : String{
 
 	var registeredUsersFile = File("./serverData/registeredUsers.txt")
 	var isRegistered = "null"
@@ -74,6 +120,7 @@ fun registerUser(server : ServerSocket, IP : String) : String{
 		
 			isRegistered = name
 		}
+		
 	}
 	return isRegistered
 }
