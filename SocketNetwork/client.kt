@@ -45,7 +45,7 @@ fun mainSocket(){
 	}
 }
 
-// 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
+
 // git: https://github.com/Flintstqne/chat-client.git
 
 fun recieveServer(){
