@@ -80,9 +80,29 @@ fun main(){
 	println("Connecting to server")
 	while (true){
 		val client = Socket("127.0.0.1", 8080)
+		// serverClient and serverServer are both meant for sending information to the server and recieving back
+		val serverclient = Socket("127.0.0.1", 8081)
+		val serverServer = ServerSocket(8081)
+		val serverOutput = BufferedReader(InputStreamReader(serverServer.getInputStream())).readLine()
 		val output = PrintWriter(client.getOutputStream(), true)
-		println("Your message:")
+		println("Your message (chkO to check online users):")
 		val input = scanner.nextLine()
+		if (input.toString() == "chkO"){
+			val server = PrintWriter(server.getOutputStream(), true)
+			server.println("Request=ConnectedClients")
+		}
+		// changelog as of 2:30 on 4/5
+		// added a possible request to get the active connected users (will ping whenever someone asks for this so it's up to date)
+		// also not sure if this thing works
+		if (serverOutput != "null"){
+			try{
+				// should theoretically remap the users and their IPs that are currently active to the server
+				var newMap = remapString(serverOutput)
+				println(newMap)
+			} catch (e: Exception) {
+				println("Ignoring this 8081 traffic")
+			}
+		// this map is what should be sent whenever the client sends a message - includes a subject, message content, and from who it is. will contain a 'TO' field so we know how to send information to each client.
 		var subjectMap = HashMap<String, Any>()
 		subjectMap.put("Subject", "Subjecty!")
 		subjectMap.put("From", name)

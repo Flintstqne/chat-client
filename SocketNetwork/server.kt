@@ -32,13 +32,40 @@ fun remapString(mapString : String) : HashMap<String, Any>{
 	return hash
 }
 
-
+fun handleServerRequests(){
+	while (true){
+		// setup serverside socket request
+		val server = ServerSocket(8081)
+		val client = server.accept()
+		var clientInformation = BufferedReader(InputStreamReader(client.getInputStream())).readLine()
+		var clientIP = client.getRemoteSocketAddress.toString()
+		println(clientIP)
+		var map = remapString(clientInformation)
+		
+		try{
+			if (map.containsKey("Request")) {
+				println(" Server request incoming")
+				if (map.get("Request") == "ConnectedClients"){
+					val returnSocket = Socket(clientIP, 8081)
+					val output = PrintWriter(returnSocket.getOutputStream(), true)
+					output.println(mapToString(activeUsers))
+				}
+			}
+		} catch (e: Exception){
+			println("Not a server request traffic")
+		}
+	}
+}
 
 fun main() {
 	
     val server = ServerSocket(8080)
     
     println("Listening on port 8080...")
+    println("Listening for server requests on port 8081")
+    thread { handleServerRequests() }
+    
+    
     // loop to check for incoming user information
     while (true){
 		val socket = server.accept()
