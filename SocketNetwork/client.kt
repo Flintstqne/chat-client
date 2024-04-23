@@ -8,6 +8,7 @@ import java.lang.*
 // ^ this is the installation cmd for the kotlin cmdline compiler
 // When compiling a kotlin script, run the following (replacing outPutFile and yourScriptName with appropriate information): kotlinc nameOfYourScript.kt -include-runtime  -d outPutFile.jar
 // NOTE: You must use the -include-runtime for the script to compile correctly and include all in-script functions. (kotlinc client.kt -include-runtime  -d client.jar)
+// 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
 fun mapToString(map : HashMap<String, Any>) : String {
 	var finishedString = ""
 	for ((key, value) in map){
