@@ -44,6 +44,8 @@ int main() {
     //thread to receive messages
     std::thread receiveThread(receiveMessages, clientSocket);
 
+    sleep(2);
+   
     std::string Username;
     std::cout << "Username:";
     std::getline(std::cin, Username);
@@ -57,7 +59,7 @@ int main() {
         }        
         
         //format message
-        std::string formattedMessage = "To=ALL,Message=" + message + ",From=TestUser";
+        std::string formattedMessage = "To=ALL,Message=" + message + ",From=" + Username;
         formattedMessage += '\n'; // Add a return symbol
         
         //send message
